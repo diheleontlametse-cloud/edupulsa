@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPlan SA — South African Education Management</title>
+  <meta name="description" content="EduPlan SA helps South African teachers manage classes, generate CAPS-aligned lesson plans, track attendance, record marks, and more.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal: {
+              900: '#0F3D3E',
+              800: '#1A5F5F',
+              700: '#2D8A8A',
+              600: '#3AAFA9',
+              50: '#E6F5F4',
+            },
+            sand: {
+              100: '#F5F0E8',
+              200: '#EDE6DA',
+              300: '#DDD3C4',
+            },
+            gold: {
+              500: '#D4A843',
+              600: '#C2983A',
+              100: '#FDF6E3',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .hero-bg { background: linear-gradient(135deg, #0F3D3E 0%, #1A5F5F 50%, #2D8A8A 100%); }
+    .wave { position: absolute; bottom: -1px; left: 0; width: 100%; overflow: hidden; line-height: 0; }
+    .wave svg { position: relative; display: block; width: calc(100% + 1.3px); height: 80px; }
+  </style>
+</head>
+<body class="bg-sand-100 text-gray-900">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-sand-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-teal-900 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <span class="text-xl font-bold text-teal-900">EduPlan SA</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-gray-600 hover:text-teal-900 transition-colors text-sm font-medium">Features</a>
+          <a href="#how-it-works" class="text-gray-600 hover:text-teal-900 transition-colors text-sm font-medium">How It Works</a>
+          <a href="#for-teachers" class="text-gray-600 hover:text-teal-900 transition-colors text-sm font-medium">For Teachers</a>
+          <a href="/app" class="px-5 py-2.5 bg-teal-900 text-white rounded-lg hover:bg-teal-800 transition-colors text-sm font-medium shadow-lg shadow-teal-900/20">Launch App</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-bg relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div class="max-w-7xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-white/90 text-sm mb-8 backdrop-blur-sm">
+        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        Built for South African CAPS Curriculum
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white leading-tight mb-6">
+        Teaching Made<br>
+        <span class="text-gold-500">Simpler</span> for SA
+      </h1>
+      <p class="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+        The all-in-one platform for South African educators. Generate CAPS-aligned lesson plans, 
+        track attendance, manage marks, and collaborate with fellow teachers — all in one place.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="/app" class="px-8 py-4 bg-gold-500 text-white rounded-xl hover:bg-gold-600 transition-colors font-semibold text-lg shadow-xl shadow-gold-500/30 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Launch App Now
+        </a>
+        <a href="#features" class="px-8 py-4 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors font-semibold text-lg border border-white/20">
+          Learn More
+        </a>
+      </div>
+      <p class="text-white/50 text-sm mt-4">Free for all South African teachers. No signup required.</p>
+    </div>
+    <div class="wave">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#F5F0E8"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="py-12 px-4 sm:px-6 lg:px-8 bg-sand-100">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-teal-900">50+</div>
+          <div class="text-sm text-gray-600">CAPS Subjects</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-teal-900">R-12</div>
+          <div class="text-sm text-gray-600">All Grades Covered</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-teal-900">9</div>
+          <div class="text-sm text-gray-600">SA Provinces</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-teal-900">100%</div>
+          <div class="text-sm text-gray-600">Free Forever</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-teal-900 mb-4">Everything You Need</h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">From lesson planning to reporting, EduPlan SA covers every aspect of teaching life.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white rounded-2xl p-8 border border-sand-200 hover:shadow-lg transition-shadow">
+          <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">AI Lesson Plans</h3>
+          <p class="text-gray-600">Generate complete CAPS-aligned lesson plans in seconds. Just enter your grade, subject, and topic.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-sand-200 hover:shadow-lg transition-shadow">
+          <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Student Management</h3>
+          <p class="text-gray-600">Track classes, student rosters, and records across all grades. Filter by class, search by name.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-sand-200 hover:shadow-lg transition-shadow">
+          <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Marks & Reports</h3>
+          <p class="text-gray-600">Record CASS tasks, exams, PAT projects. Calculate averages and export CSV reports.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-sand-200 hover:shadow-lg transition-shadow">
+          <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Daily Attendance</h3>
+          <p class="text-gray-600">Mark attendance with one click. Present, Absent, or Late. Save by class and date.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-sand-200 hover:shadow-lg transition-shadow">
+          <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Study Guides</h3>
+          <p class="text-gray-600">Generate CAPS-aligned study guides for exam prep. Templates for Exam Review and Revision Notes.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-sand-200 hover:shadow-lg transition-shadow">
+          <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Student Rewards</h3>
+          <p class="text-gray-600">Celebrate achievements with digital badges. Academic Excellence, Perfect Attendance, and more.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-teal-900 mb-4">How It Works</h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Get started in under 5 minutes. No training required.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-teal-900 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">1</div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Create Your Account</h3>
+          <p class="text-gray-600">Sign up with your email. It takes 30 seconds. No paperwork, no school IT approval needed.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-teal-800 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">2</div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Set Up Your Classes</h3>
+          <p class="text-gray-600">Add your classes, subjects, and students. Choose from 50+ SA CAPS subjects and all grades R-12.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-teal-700 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">3</div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Teach & Track</h3>
+          <p class="text-gray-600">Generate lesson plans, record marks, track attendance, and print reports — all from one dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Teachers -->
+  <section id="for-teachers" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-teal-900 mb-6">Built by Teachers,<br>For Teachers</h2>
+          <p class="text-lg text-gray-600 mb-6">EduPlan SA was designed with input from South African educators working in government schools, independent schools, and rural classrooms.</p>
+          <ul class="space-y-4">
+            <li class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-teal-50 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-700">CAPS-aligned content from the start</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-teal-50 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-700">Works offline once loaded (data-saving)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-teal-50 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-700">All SA Home Languages included (isiZulu, isiXhosa, Afrikaans, etc.)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-teal-50 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-700">Export reports and marks to CSV for SNA/SAMS</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-6 h-6 bg-teal-50 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-700">No internet required after loading (works on slow connections)</span>
+            </li>
+          </ul>
+        </div>
+        <div class="bg-teal-50 rounded-2xl p-8 border border-teal-100">
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-900">Perfect Attendance Badge</p>
+                <p class="text-sm text-gray-500">Awarded to Thabo M.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 bg-gold-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-900">Academic Excellence</p>
+                <p class="text-sm text-gray-500">Awarded to Sarah J.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-900">Active Participation</p>
+                <p class="text-sm text-gray-500">Awarded to David W.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center bg-teal-900 rounded-3xl p-12 sm:p-16">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Transform Your Teaching?</h2>
+      <p class="text-lg text-white/80 mb-8 max-w-2xl mx-auto">Join thousands of South African educators saving hours every week.</p>
+      <a href="/app" class="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 text-white rounded-xl hover:bg-gold-600 transition-colors font-semibold text-lg shadow-xl shadow-gold-500/30">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Launch EduPlan SA Now
+      </a>
+      <p class="text-white/50 text-sm mt-4">Free forever. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-sand-200">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-teal-900 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <span class="font-bold text-teal-900">EduPlan SA</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-gray-600">
+          <span>Built for South African Teachers</span>
+          <span>•</span>
+          <span>CAPS Aligned</span>
+          <span>•</span>
+          <span>100% Free</span>
+        </div>
+      </div>
+      <div class="mt-8 text-center text-sm text-gray-500">
+        <p>Empowering South African Education, One Classroom at a Time.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

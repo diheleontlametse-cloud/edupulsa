@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --teal-900: #0F3D3E;
+    --teal-800: #1A5F5F;
+    --teal-700: #2D8A8A;
+    --teal-600: #3AAFA9;
+    --teal-50: #E6F5F4;
+    --sand-100: #F5F0E8;
+    --sand-200: #EDE6DA;
+    --sand-300: #DDD3C4;
+    --gold-500: #D4A843;
+    --gold-100: #FDF6E3;
+  }
+  
+  body {
+    @apply bg-sand-100 text-gray-900 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sand-200);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sand-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--teal-600);
+}
