@@ -86,6 +86,15 @@ function initTables() {
       FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE
     )`);
 
+    db.run(`CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sender_id INTEGER NOT NULL,
+      sender_name TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
     console.log('Database tables initialized.');
   });
 }

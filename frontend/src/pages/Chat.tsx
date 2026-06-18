@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { MessageSquare, Hash, Users, Send, Bell, BookOpen, GraduationCap, Globe } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { MessageSquare, Hash, Users, Send, Bell, BookOpen, GraduationCap, Globe, RefreshCw } from 'lucide-react';
 import { GRADES, SA_SUBJECTS } from '../lib/const';
+import { authFetch } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 interface Channel {
   id: string;
@@ -11,62 +13,102 @@ interface Channel {
 
 interface Message {
   id: number;
-  sender: string;
+  sender_id: number;
+  sender_name: string;
+  channel: string;
   content: string;
-  time: string;
-  channelId: string;
+  created_at: string;
 }
 
 const gradeChannels: Channel[] = GRADES.map((g) => ({
   id: `grade-${g}`,
   name: `Grade ${g}`,
   type: 'grade',
-  messageCount: Math.floor(Math.random() * 50) + 2,
+  messageCount: 0,
 }));
 
-const subjectChannels: Channel[] = SA_SUBJECTS.slice(0, 8).map((s) => ({
+const subjectChannels: Channel[] = SA_SUBJECTS.slice(0, 12).map((s) => ({
   id: `subject-${s}`,
   name: s,
   type: 'subject',
-  messageCount: Math.floor(Math.random() * 30) + 1,
+  messageCount: 0,
 }));
 
 const generalChannels: Channel[] = [
-  { id: 'general-1', name: 'General Discussion', type: 'general', messageCount: 124 },
-  { id: 'general-2', name: 'School Events', type: 'general', messageCount: 45 },
-  { id: 'general-3', name: 'Resources & Sharing', type: 'general', messageCount: 67 },
-];
-
-const mockMessages: Message[] = [
-  { id: 1, sender: 'Mrs. Naidoo', content: 'Does anyone have a good worksheet for quadratic functions?', time: '09:14', channelId: 'grade-10' },
-  { id: 2, sender: 'Mr. Mokoena', content: 'I shared one in the Resources channel last week!', time: '09:16', channelId: 'grade-10' },
-  { id: 3, sender: 'Ms. Dlamini', content: 'Thanks, I will check it out.', time: '09:18', channelId: 'grade-10' },
-  { id: 4, sender: 'Mr. Zulu', content: 'Reminder: staff meeting at 14:00 today.', time: '08:30', channelId: 'general-1' },
-  { id: 5, sender: 'Mrs. Khumalo', content: 'The matric study guides are now available in the library.', time: '10:05', channelId: 'general-2' },
-  { id: 6, sender: 'Ms. Sithole', content: 'Here is a link to the DBE past papers archive.', time: '11:22', channelId: 'general-3' },
-  { id: 7, sender: 'Mr. Nkosi', content: 'Has anyone tried the new CAPS-aligned assessment rubrics?', time: '12:00', channelId: 'subject-Mathematics' },
+  { id: 'general-1', name: 'General Discussion', type: 'general', messageCount: 0 },
+  { id: 'general-2', name: 'School Events', type: 'general', messageCount: 0 },
+  { id: 'general-3', name: 'Resources & Sharing', type: 'general', messageCount: 0 },
 ];
 
 export default function Chat() {
-  const [activeChannel, setActiveChannel] = useState<Channel>(gradeChannels[9]); // Grade 10
+  const { user } = useAuth();
+  const [activeChannel, setActiveChannel] = useState<Channel>(gradeChannels[9]);
   const [messageInput, setMessageInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const channelMessages = messages.filter((m) => m.channelId === activeChannel.id);
-
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageInput.trim()) return;
-    const newMessage: Message = {
-      id: Date.now(),
-      sender: 'You',
-      content: messageInput.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      channelId: activeChannel.id,
-    };
-    setMessages([...messages, newMessage]);
-    setMessageInput('');
+  const fetchMessages = async () => {
+    if (!activeChannel) return;
+    setLoading(true);
+    try {
+      const res = await authFetch(`/api/messages?channel=${encodeURIComponent(activeChannel.id)}`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setMessages(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch messages:', err);
+    }
+    setLoading(false);
   };
+
+  useEffect(() => {
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, [activeChannel.id]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageInput.trim() || !user) return;
+    setSending(true);
+    try {
+      const res = await authFetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender_id: user.id,
+          sender_name: user.name,
+          channel: activeChannel.id,
+          content: messageInput.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.id) {
+        setMessages((prev) => [...prev, data]);
+        setMessageInput('');
+      }
+    } catch (err) {
+      console.error('Failed to send message:', err);
+    }
+    setSending(false);
+  };
+
+  const formatTime = (iso: string) => {
+    try {
+      return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  };
+
+  const isOwnMessage = (msg: Message) => msg.sender_id === user?.id;
 
   const renderChannelGroup = (title: string, icon: React.ReactNode, channels: Channel[]) => (
     <div className="mb-4">
@@ -88,11 +130,6 @@ export default function Chat() {
             <Hash className="w-4 h-4" />
             {ch.name}
           </span>
-          {ch.messageCount > 0 && (
-            <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-              {ch.messageCount}
-            </span>
-          )}
         </button>
       ))}
     </div>
@@ -119,37 +156,53 @@ export default function Chat() {
             <div className="flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-teal-700" />
               <h2 className="font-semibold text-teal-900">{activeChannel.name}</h2>
-              <span className="text-xs text-gray-500">{channelMessages.length} messages</span>
+              <span className="text-xs text-gray-500">{messages.length} messages</span>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={fetchMessages}
+                className="p-1.5 text-gray-400 hover:text-teal-700 transition-colors"
+                title="Refresh messages"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500">{Math.floor(Math.random() * 20) + 5} online</span>
+              <span className="text-xs text-gray-500">Live</span>
               <Bell className="w-4 h-4 text-gray-400" />
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
-            {channelMessages.length === 0 ? (
+            {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-400">
                 <MessageSquare className="w-12 h-12 mb-3" />
                 <p>No messages yet. Start the conversation!</p>
               </div>
             ) : (
-              channelMessages.map((msg) => (
-                <div key={msg.id} className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold shrink-0">
-                    {msg.sender.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+              messages.map((msg) => (
+                <div key={msg.id} className={`flex items-start gap-3 ${isOwnMessage(msg) ? 'flex-row-reverse' : ''}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                    isOwnMessage(msg) ? 'bg-teal-700 text-white' : 'bg-teal-100 text-teal-700'
+                  }`}>
+                    {msg.sender_name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900">{msg.sender}</span>
-                      <span className="text-xs text-gray-400">{msg.time}</span>
+                  <div className={`flex-1 max-w-[70%] ${isOwnMessage(msg) ? 'text-right' : ''}`}>
+                    <div className={`flex items-center gap-2 ${isOwnMessage(msg) ? 'justify-end' : ''}`}>
+                      <span className="text-sm font-semibold text-gray-900">{msg.sender_name}</span>
+                      <span className="text-xs text-gray-400">{formatTime(msg.created_at)}</span>
                     </div>
-                    <p className="text-sm text-gray-700 mt-0.5">{msg.content}</p>
+                    <div className={`inline-block px-3 py-2 rounded-lg mt-0.5 text-sm ${
+                      isOwnMessage(msg)
+                        ? 'bg-teal-700 text-white'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {msg.content}
+                    </div>
                   </div>
                 </div>
               ))
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           <form onSubmit={handleSend} className="p-4 border-t border-gray-200 bg-white flex items-center gap-3">
@@ -159,10 +212,12 @@ export default function Chat() {
               onChange={(e) => setMessageInput(e.target.value)}
               placeholder={`Message #${activeChannel.name}`}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm"
+              disabled={sending}
             />
             <button
               type="submit"
-              className="p-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 transition-colors"
+              disabled={sending || !messageInput.trim()}
+              className="p-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 transition-colors disabled:opacity-50"
             >
               <Send className="w-4 h-4" />
             </button>

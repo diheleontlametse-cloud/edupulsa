@@ -23,6 +23,8 @@ app.use('/api/attendance', authMiddleware, require('./routes/attendance'));
 app.use('/api/dashboard', authMiddleware, require('./routes/dashboard'));
 app.use('/api/reports', authMiddleware, require('./routes/reports'));
 
+app.use('/api/messages', authMiddleware, require('./routes/messages'));
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Landing page at root
