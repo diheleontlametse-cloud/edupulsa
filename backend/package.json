@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "cd ../frontend && npm install --include=dev && npm run build && cd ../landing && cp -r ../frontend/dist/* . && cd ../backend && npm install"
+    "build": "cd ../frontend && npm install --include=dev && npm run build && cd ../backend && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
