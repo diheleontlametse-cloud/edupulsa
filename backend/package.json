@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "curl -s https://raw.githubusercontent.com/diheleontlametse-cloud/edupulsa/main/landing/index.html > ../landing/index.html && rm -rf ../landing/assets && cd ../frontend && npm install --include=dev && npm run build && cd ../backend && npm install"
+    "build": "echo BUILD_RAN_$(date) > ../BUILD_MARKER.txt && curl -s https://raw.githubusercontent.com/diheleontlametse-cloud/edupulsa/main/landing/index.html > ../landing/index.html && rm -rf ../landing/assets && cd ../frontend && npm install --include=dev && npm run build && cd ../backend && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

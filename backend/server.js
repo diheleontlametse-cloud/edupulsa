@@ -25,6 +25,28 @@ app.use('/api/reports', authMiddleware, require('./routes/reports'));
 
 app.use('/api/messages', authMiddleware, require('./routes/messages'));
 
+const fs = require('fs');
+const https = require('https');
+
+// Restore landing page if corrupted on startup
+const landingPath = path.join(__dirname, '../landing/index.html');
+if (fs.existsSync(landingPath)) {
+  const content = fs.readFileSync(landingPath, 'utf8');
+  if (content.includes('vite.svg') || content.includes('id="root"')) {
+    console.log('Landing page is corrupted, restoring from GitHub...');
+    https.get('https://raw.githubusercontent.com/diheleontlametse-cloud/edupulsa/main/landing/index.html', (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        fs.writeFileSync(landingPath, data);
+        console.log('Landing page restored successfully');
+      });
+    }).on('error', (err) => {
+      console.error('Failed to restore landing page:', err.message);
+    });
+  }
+}
+
 // Debug route to check filesystem
 app.get('/debug', (req, res) => {
   const fs = require('fs');
@@ -37,6 +59,9 @@ app.get('/debug', (req, res) => {
   
   const landingIndexContent = fs.existsSync(landingIndexPath) ? fs.readFileSync(landingIndexPath, 'utf8').substring(0, 200) : 'NOT FOUND';
   const frontendDistIndexContent = fs.existsSync(frontendDistIndexPath) ? fs.readFileSync(frontendDistIndexPath, 'utf8').substring(0, 200) : 'NOT FOUND';
+  
+  const buildMarkerExists = fs.existsSync(path.join(__dirname, '../BUILD_MARKER.txt'));
+  const buildMarkerContent = buildMarkerExists ? fs.readFileSync(path.join(__dirname, '../BUILD_MARKER.txt'), 'utf8') : 'NOT FOUND';
   
   const result = {
     nodeEnv: process.env.NODE_ENV,
@@ -53,6 +78,8 @@ app.get('/debug', (req, res) => {
     frontendDistIndexFirst200Chars: frontendDistIndexContent,
     landingHasHeroBg: landingIndexContent.includes('hero-bg'),
     landingHasRootDiv: landingIndexContent.includes('id="root"'),
+    buildMarkerExists: buildMarkerExists,
+    buildMarkerContent: buildMarkerContent,
   };
   
   res.json(result);
