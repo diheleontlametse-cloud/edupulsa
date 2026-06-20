@@ -25,6 +25,34 @@ app.use('/api/reports', authMiddleware, require('./routes/reports'));
 
 app.use('/api/messages', authMiddleware, require('./routes/messages'));
 
+// Debug route to check filesystem
+app.get('/debug', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const landingDir = path.join(__dirname, '../landing');
+  const frontendDistDir = path.join(__dirname, '../frontend/dist');
+  
+  const result = {
+    nodeEnv: process.env.NODE_ENV,
+    __dirname: __dirname,
+    landingDir: landingDir,
+    frontendDistDir: frontendDistDir,
+    landingExists: fs.existsSync(landingDir),
+    landingIndexExists: fs.existsSync(path.join(landingDir, 'index.html')),
+    frontendDistExists: fs.existsSync(frontendDistDir),
+    frontendDistIndexExists: fs.existsSync(path.join(frontendDistDir, 'index.html')),
+  };
+  
+  if (result.landingExists) {
+    result.landingFiles = fs.readdirSync(landingDir);
+  }
+  if (result.frontendDistExists) {
+    result.frontendDistFiles = fs.readdirSync(frontendDistDir);
+  }
+  
+  res.json(result);
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Landing page at root
