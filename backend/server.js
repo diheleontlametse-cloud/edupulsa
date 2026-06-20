@@ -32,23 +32,28 @@ app.get('/debug', (req, res) => {
   const landingDir = path.join(__dirname, '../landing');
   const frontendDistDir = path.join(__dirname, '../frontend/dist');
   
+  const landingIndexPath = path.join(landingDir, 'index.html');
+  const frontendDistIndexPath = path.join(frontendDistDir, 'index.html');
+  
+  const landingIndexContent = fs.existsSync(landingIndexPath) ? fs.readFileSync(landingIndexPath, 'utf8').substring(0, 200) : 'NOT FOUND';
+  const frontendDistIndexContent = fs.existsSync(frontendDistIndexPath) ? fs.readFileSync(frontendDistIndexPath, 'utf8').substring(0, 200) : 'NOT FOUND';
+  
   const result = {
     nodeEnv: process.env.NODE_ENV,
     __dirname: __dirname,
     landingDir: landingDir,
     frontendDistDir: frontendDistDir,
     landingExists: fs.existsSync(landingDir),
-    landingIndexExists: fs.existsSync(path.join(landingDir, 'index.html')),
+    landingIndexExists: fs.existsSync(landingIndexPath),
     frontendDistExists: fs.existsSync(frontendDistDir),
-    frontendDistIndexExists: fs.existsSync(path.join(frontendDistDir, 'index.html')),
+    frontendDistIndexExists: fs.existsSync(frontendDistIndexPath),
+    landingFiles: fs.existsSync(landingDir) ? fs.readdirSync(landingDir) : [],
+    frontendDistFiles: fs.existsSync(frontendDistDir) ? fs.readdirSync(frontendDistDir) : [],
+    landingIndexFirst200Chars: landingIndexContent,
+    frontendDistIndexFirst200Chars: frontendDistIndexContent,
+    landingHasHeroBg: landingIndexContent.includes('hero-bg'),
+    landingHasRootDiv: landingIndexContent.includes('id="root"'),
   };
-  
-  if (result.landingExists) {
-    result.landingFiles = fs.readdirSync(landingDir);
-  }
-  if (result.frontendDistExists) {
-    result.frontendDistFiles = fs.readdirSync(frontendDistDir);
-  }
   
   res.json(result);
 });
