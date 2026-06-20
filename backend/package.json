@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "cd ../landing && rm -rf assets && git show HEAD:landing/index.html > index.html && cd ../frontend && npm install --include=dev && npm run build && cd ../backend && npm install"
+    "build": "curl -s https://raw.githubusercontent.com/diheleontlametse-cloud/edupulsa/main/landing/index.html > ../landing/index.html && rm -rf ../landing/assets && cd ../frontend && npm install --include=dev && npm run build && cd ../backend && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
