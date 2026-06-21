@@ -16,6 +16,7 @@ import {
   Award,
   MessageCircle,
   Camera,
+  Crown,
 } from 'lucide-react';
 
 const navItems = [
@@ -31,6 +32,7 @@ const navItems = [
   { to: '/schedule', icon: Calendar, label: 'Schedule' },
   { to: '/rewards', icon: Award, label: 'Rewards' },
   { to: '/chat', icon: MessageCircle, label: 'Chat' },
+  { to: '/subscription', icon: Crown, label: 'Subscription' },
 ];
 
 export default function Sidebar() {
@@ -132,9 +134,24 @@ export default function Sidebar() {
               onChange={handleFileChange}
             />
           </div>
-          <div className="overflow-hidden">
+          <div className="overflow-hidden flex-1">
             <p className="text-sm font-medium text-white truncate">{user?.name}</p>
             <p className="text-xs text-teal-200 truncate">{user?.email}</p>
+            {user?.subscription && (
+              <p className={`text-xs font-medium mt-0.5 ${
+                user.subscription.is_expired ? 'text-red-400' :
+                user.subscription.is_trial ? 'text-amber-300' :
+                user.subscription.tier === 'pro' ? 'text-gold-300' :
+                user.subscription.tier === 'basic' ? 'text-teal-300' :
+                'text-teal-200'
+              }`}>
+                {user.subscription.is_expired ? 'Trial Expired' :
+                 user.subscription.is_trial ? `Trial: ${user.subscription.days_left}d left` :
+                 user.subscription.tier === 'free' ? 'Free Plan' :
+                 user.subscription.tier === 'basic' ? 'Teacher Basic' :
+                 user.subscription.tier === 'pro' ? 'Teacher Pro' : 'Free Plan'}
+              </p>
+            )}
           </div>
         </div>
         <button

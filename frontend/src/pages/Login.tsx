@@ -50,7 +50,20 @@ export default function Login() {
           setLoading(false);
           return;
         }
-        login(data.token, data.user);
+        // Add subscription info to user
+        const userWithSub = {
+          ...data.user,
+          subscription: {
+            tier: data.user.subscription_tier || 'free',
+            status: data.user.subscription_status || 'trial',
+            trial_end: data.user.trial_end,
+            subscription_end: data.user.subscription_end,
+            days_left: data.user.trial_end ? Math.ceil((new Date(data.user.trial_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0,
+            is_trial: data.user.subscription_status === 'trial',
+            is_expired: data.user.subscription_status === 'expired',
+          }
+        };
+        login(data.token, userWithSub);
       }
       else if (mode === 'verify') {
         const res = await fetch('/api/auth/verify', {

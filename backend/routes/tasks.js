@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const { subscriptionLimitMiddleware } = require('../middleware/subscription');
 
 // Get all tasks for the authenticated user
 router.get('/', (req, res) => {
@@ -16,8 +17,8 @@ router.get('/', (req, res) => {
   });
 });
 
-// Create task
-router.post('/', (req, res) => {
+// Create task - enforce subscription limit
+router.post('/', subscriptionLimitMiddleware('tasks'), (req, res) => {
   const { title, description, due_date, class_id, priority } = req.body;
   db.run(
     'INSERT INTO tasks (user_id, title, description, due_date, class_id, priority) VALUES (?, ?, ?, ?, ?, ?)',

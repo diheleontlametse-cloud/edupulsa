@@ -1,4 +1,14 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+
+interface Subscription {
+  tier: string;
+  status: string;
+  trial_end?: string;
+  subscription_end?: string;
+  days_left?: number;
+  is_trial?: boolean;
+  is_expired?: boolean;
+}
 
 interface AuthUser {
   id: number;
@@ -7,6 +17,7 @@ interface AuthUser {
   role: string;
   profile_picture?: string | null;
   is_verified?: number;
+  subscription?: Subscription;
 }
 
 interface AuthContextType {
@@ -15,6 +26,7 @@ interface AuthContextType {
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
   updateUser: (user: AuthUser) => void;
+  refreshSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +35,7 @@ const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   updateUser: () => {},
+  refreshSubscription: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -46,6 +59,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updatedUser);
   };
 
+  const refreshSubscription = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/subscription/status', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const updatedUser = { ...user, subscription: data.subscription } as AuthUser;
+        updateUser(updatedUser);
+      }
+    } catch (e) {
+      console.error('Failed to refresh subscription:', e);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      refreshSubscription();
+    }
+  }, [token]);
+
   const logout = () => {
     localStorage.removeItem('teacherhub_token');
     localStorage.removeItem('teacherhub_user');
@@ -54,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, refreshSubscription }}>
       {children}
     </AuthContext.Provider>
   );

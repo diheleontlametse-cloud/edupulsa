@@ -24,6 +24,12 @@ function initTables() {
       verification_code TEXT,
       reset_token TEXT,
       reset_token_expires TEXT,
+      subscription_tier TEXT DEFAULT 'free',
+      subscription_status TEXT DEFAULT 'trial',
+      trial_start TEXT,
+      trial_end TEXT,
+      subscription_start TEXT,
+      subscription_end TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -135,9 +141,41 @@ function initTables() {
         console.log('Note: reset_token_expires column may already exist');
       }
     });
+    // Backward compatibility: add profile_picture column if missing
     db.run(`ALTER TABLE users ADD COLUMN profile_picture TEXT`, function(err) {
       if (err && !err.message.includes('duplicate column name')) {
         console.log('Note: profile_picture column may already exist');
+      }
+    });
+    // Backward compatibility: add subscription columns if missing
+    db.run(`ALTER TABLE users ADD COLUMN subscription_tier TEXT DEFAULT 'free'`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: subscription_tier column may already exist');
+      }
+    });
+    db.run(`ALTER TABLE users ADD COLUMN subscription_status TEXT DEFAULT 'trial'`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: subscription_status column may already exist');
+      }
+    });
+    db.run(`ALTER TABLE users ADD COLUMN trial_start TEXT`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: trial_start column may already exist');
+      }
+    });
+    db.run(`ALTER TABLE users ADD COLUMN trial_end TEXT`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: trial_end column may already exist');
+      }
+    });
+    db.run(`ALTER TABLE users ADD COLUMN subscription_start TEXT`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: subscription_start column may already exist');
+      }
+    });
+    db.run(`ALTER TABLE users ADD COLUMN subscription_end TEXT`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: subscription_end column may already exist');
       }
     });
 

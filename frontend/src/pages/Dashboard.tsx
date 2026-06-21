@@ -1,4 +1,6 @@
 import { useDashboard } from '../hooks/useData';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   School,
   Users,
@@ -8,10 +10,20 @@ import {
   ArrowRight,
   TrendingUp,
   Quote,
+  Crown,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function Dashboard() {
   const { data, loading } = useDashboard();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const sub = user?.subscription;
+  const isTrial = sub?.is_trial;
+  const isExpired = sub?.is_expired;
+  const daysLeft = sub?.days_left || 0;
+  const tier = sub?.tier || 'free';
 
   if (loading) {
     return (
@@ -37,6 +49,41 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Subscription Banner */}
+      {(isTrial || isExpired) && (
+        <div className={`rounded-xl p-4 border ${isExpired ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isExpired ? (
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              ) : (
+                <Crown className="w-5 h-5 text-amber-600" />
+              )}
+              <div>
+                <p className={`font-medium ${isExpired ? 'text-red-800' : 'text-amber-800'}`}>
+                  {isExpired
+                    ? 'Your free trial has expired'
+                    : `Free trial: ${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
+                </p>
+                <p className={`text-sm ${isExpired ? 'text-red-600' : 'text-amber-700'}`}>
+                  {isExpired
+                    ? 'Upgrade to continue using all features.'
+                    : 'Upgrade anytime to keep full access after your trial.'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/subscription')}
+              className={`px-4 py-2 rounded-lg text-white font-medium transition-colors ${
+                isExpired ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'
+              }`}
+            >
+              {isExpired ? 'Upgrade Now' : 'View Plans'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Welcome to EduPlan SA</h1>
         <p className="text-gray-500 mt-1">Your CAPS-aligned dashboard for South African classrooms.</p>

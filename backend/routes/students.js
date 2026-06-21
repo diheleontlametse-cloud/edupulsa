@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const { subscriptionLimitMiddleware } = require('../middleware/subscription');
 
 // Get all students for the authenticated user (optionally filter by class_id)
 router.get('/', (req, res) => {
@@ -18,8 +19,8 @@ router.get('/', (req, res) => {
   });
 });
 
-// Create student
-router.post('/', (req, res) => {
+// Create student - enforce subscription limit
+router.post('/', subscriptionLimitMiddleware('students'), (req, res) => {
   const { name, class_id, student_number } = req.body;
   db.run(
     'INSERT INTO students (user_id, name, class_id, student_number) VALUES (?, ?, ?, ?)',

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const { subscriptionLimitMiddleware } = require('../middleware/subscription');
 
 // Get all classes for the authenticated user
 router.get('/', (req, res) => {
@@ -10,8 +11,8 @@ router.get('/', (req, res) => {
   });
 });
 
-// Create class
-router.post('/', (req, res) => {
+// Create class - enforce subscription limit
+router.post('/', subscriptionLimitMiddleware('classes'), (req, res) => {
   const { name, subject, grade_level } = req.body;
   db.run(
     'INSERT INTO classes (user_id, name, subject, grade_level) VALUES (?, ?, ?, ?)',

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const { subscriptionLimitMiddleware, checkAiGeneration, checkDownloads } = require('../middleware/subscription');
 
 // Get all study guides for the authenticated user
 router.get('/', (req, res) => {
@@ -18,8 +19,8 @@ router.get('/', (req, res) => {
   });
 });
 
-// Create study guide
-router.post('/', (req, res) => {
+// Create study guide - enforce subscription limit
+router.post('/', subscriptionLimitMiddleware('studyGuides'), (req, res) => {
   const { class_id, title, content, subject } = req.body;
   db.run(
     'INSERT INTO study_guides (user_id, class_id, title, content, subject) VALUES (?, ?, ?, ?, ?)',

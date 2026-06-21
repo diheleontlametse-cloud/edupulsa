@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { hashPassword, comparePassword, generateToken } = require('../auth');
+const { hashPassword, comparePassword, generateToken, checkTrialExpired } = require('../auth');
 
 // Generate a random 6-digit code
 function generateCode() {
@@ -13,7 +13,7 @@ function generateResetToken() {
   return require('crypto').randomBytes(32).toString('hex');
 }
 
-// Register
+// Register - with 1 month free trial
 router.post('/register', (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -24,9 +24,14 @@ router.post('/register', (req, res) => {
   }
   const hashed = hashPassword(password);
   const verificationCode = generateCode();
+  const now = new Date();
+  const trialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  const trialStart = now.toISOString();
+  const trialEndStr = trialEnd.toISOString();
+
   db.run(
-    'INSERT INTO users (name, email, password, verification_code, is_verified) VALUES (?, ?, ?, ?, 0)',
-    [name, email, hashed, verificationCode],
+    'INSERT INTO users (name, email, password, verification_code, is_verified, subscription_tier, subscription_status, trial_start, trial_end) VALUES (?, ?, ?, ?, 0, "free", "trial", ?, ?)',
+    [name, email, hashed, verificationCode, trialStart, trialEndStr],
     function (err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
@@ -34,12 +39,14 @@ router.post('/register', (req, res) => {
         }
         return res.status(500).json({ error: err.message });
       }
-      const token = generateToken({ id: this.lastID, email, name, role: 'teacher' });
+      const user = { id: this.lastID, email, name, role: 'teacher', subscription_tier: 'free', subscription_status: 'trial' };
+      const token = generateToken(user);
       res.json({
         token,
-        user: { id: this.lastID, name, email, role: 'teacher', profile_picture: null, is_verified: 0 },
+        user: { ...user, profile_picture: null, is_verified: 0 },
         verificationCode,
-        message: 'Registration successful. Please verify your email using the code provided.'
+        trialEnd: trialEndStr,
+        message: 'Registration successful. 1-month free trial started! Please verify your email.'
       });
     }
   );
@@ -56,19 +63,29 @@ router.post('/login', (req, res) => {
     if (!user) return res.status(401).json({ error: 'Invalid email or password' });
     const valid = comparePassword(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
-    const token = generateToken(user);
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        profile_picture: user.profile_picture,
-        is_verified: user.is_verified
-      },
-      needsVerification: user.is_verified === 0,
-      verificationCode: user.is_verified === 0 ? user.verification_code : undefined
+
+    // Check trial expiration
+    checkTrialExpired(user.id, (err, updatedUser) => {
+      if (err) return res.status(500).json({ error: err.message });
+      const token = generateToken(updatedUser);
+      res.json({
+        token,
+        user: {
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          profile_picture: updatedUser.profile_picture,
+          is_verified: updatedUser.is_verified,
+          subscription_tier: updatedUser.subscription_tier,
+          subscription_status: updatedUser.subscription_status,
+          trial_end: updatedUser.trial_end,
+          subscription_end: updatedUser.subscription_end,
+        },
+        needsVerification: updatedUser.is_verified === 0,
+        verificationCode: updatedUser.is_verified === 0 ? updatedUser.verification_code : undefined,
+        trialExpired: updatedUser.subscription_status === 'expired'
+      });
     });
   });
 });

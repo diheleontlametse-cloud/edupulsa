@@ -15,6 +15,8 @@ import Schedule from './pages/Schedule';
 import LessonPlans from './pages/LessonPlans';
 import Chat from './pages/Chat';
 
+import Subscription from './pages/Subscription';
+
 export default function App() {
   const { token } = useAuth();
 
@@ -42,6 +44,7 @@ export default function App() {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/lesson-plans" element={<LessonPlans />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/subscription" element={<Subscription />} />
         <Route path="/login" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
