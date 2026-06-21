@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useStudyGuides, useClasses } from '../hooks/useData';
 import { authFetch } from '../lib/api';
 import Modal from '../components/Modal';
-import { Plus, Pencil, Trash2, BookOpen, Wand2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, BookOpen, Wand2, Download } from 'lucide-react';
+import { downloadAsWord } from '../lib/download';
 
 const studyGuideTemplates = {
   'exam_review': {
@@ -207,6 +208,21 @@ export default function StudyGuides() {
     refresh();
   };
 
+  const handleDownload = (guide: any) => {
+    const htmlContent = `
+      <h1>${guide.title}</h1>
+      <p><strong>Subject:</strong> ${guide.subject}</p>
+      ${guide.class_name ? `<p><strong>Class:</strong> ${guide.class_name}</p>` : ''}
+      <hr>
+      ${guide.content.replace(/\n/g, '<br>').replace(/## /g, '<h2>').replace(/### /g, '<h3>').replace(/\*\*/g, '<strong>').replace(/\*\*/g, '</strong>')}
+    `;
+    downloadAsWord(
+      `${guide.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_study_guide.doc`,
+      guide.title,
+      htmlContent
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -248,6 +264,9 @@ export default function StudyGuides() {
                 <BookOpen className="w-5 h-5 text-purple-600" />
               </div>
               <div className="flex gap-2">
+                <button onClick={() => handleDownload(guide)} className="p-2 hover:bg-green-50 rounded-lg transition-colors" title="Download">
+                  <Download className="w-4 h-4 text-green-600" />
+                </button>
                 <button onClick={() => handleEdit(guide)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                   <Pencil className="w-4 h-4 text-gray-500" />
                 </button>
