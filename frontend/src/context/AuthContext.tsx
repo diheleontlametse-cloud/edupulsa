@@ -6,6 +6,7 @@ interface AuthUser {
   email: string;
   role: string;
   profile_picture?: string | null;
+  is_verified?: number;
 }
 
 interface AuthContextType {

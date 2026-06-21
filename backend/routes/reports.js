@@ -2,17 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 
-// Student report - marks, attendance, summary
+// Student report - marks, attendance, summary (only for the authenticated user's students)
 router.get('/student/:id', (req, res) => {
   const studentId = req.params.id;
-  db.get('SELECT s.*, c.name as class_name, c.subject FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE s.id = ?', [studentId], (err, student) => {
+  db.get('SELECT s.*, c.name as class_name, c.subject FROM students s LEFT JOIN classes c ON s.class_id = c.id WHERE s.id = ? AND s.user_id = ?', [studentId, req.user.id], (err, student) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!student) return res.status(404).json({ error: 'Student not found' });
 
-    db.all('SELECT * FROM marks WHERE student_id = ? ORDER BY date DESC', [studentId], (err, marks) => {
+    db.all('SELECT * FROM marks WHERE student_id = ? AND user_id = ? ORDER BY date DESC', [studentId, req.user.id], (err, marks) => {
       if (err) return res.status(500).json({ error: err.message });
 
-      db.all('SELECT * FROM attendance WHERE student_id = ? ORDER BY date DESC', [studentId], (err, attendance) => {
+      db.all('SELECT * FROM attendance WHERE student_id = ? AND user_id = ? ORDER BY date DESC', [studentId, req.user.id], (err, attendance) => {
         if (err) return res.status(500).json({ error: err.message });
 
         const totalMarks = marks.length;
@@ -43,20 +43,20 @@ router.get('/student/:id', (req, res) => {
   });
 });
 
-// Class report - all students, marks, attendance summary
+// Class report - all students, marks, attendance summary (only for the authenticated user's classes)
 router.get('/class/:id', (req, res) => {
   const classId = req.params.id;
-  db.get('SELECT * FROM classes WHERE id = ?', [classId], (err, cls) => {
+  db.get('SELECT * FROM classes WHERE id = ? AND user_id = ?', [classId, req.user.id], (err, cls) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!cls) return res.status(404).json({ error: 'Class not found' });
 
-    db.all('SELECT * FROM students WHERE class_id = ? ORDER BY name', [classId], (err, students) => {
+    db.all('SELECT * FROM students WHERE class_id = ? AND user_id = ? ORDER BY name', [classId, req.user.id], (err, students) => {
       if (err) return res.status(500).json({ error: err.message });
 
-      db.all('SELECT * FROM marks WHERE class_id = ?', [classId], (err, allMarks) => {
+      db.all('SELECT * FROM marks WHERE class_id = ? AND user_id = ?', [classId, req.user.id], (err, allMarks) => {
         if (err) return res.status(500).json({ error: err.message });
 
-        db.all('SELECT * FROM attendance WHERE class_id = ?', [classId], (err, allAttendance) => {
+        db.all('SELECT * FROM attendance WHERE class_id = ? AND user_id = ?', [classId, req.user.id], (err, allAttendance) => {
           if (err) return res.status(500).json({ error: err.message });
 
           const studentReports = students.map(student => {

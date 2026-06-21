@@ -40,3 +40,58 @@ export function downloadAsWord(filename: string, title: string, content: string)
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+/** Convert markdown-like text to clean HTML for Word docs */
+export function markdownToHtml(text: string): string {
+  let html = text
+    // Code blocks
+    .replace(/```[\s\S]*?```/g, (match) => {
+      const code = match.replace(/```/g, '').trim();
+      return `<pre style="background:#f5f5f5;padding:8pt;border:1pt solid #ddd;font-family:Consolas,monospace;font-size:10pt;">${code}</pre>`;
+    })
+    // Headings
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code style="background:#f5f5f5;padding:2pt 4pt;font-family:Consolas,monospace;font-size:10pt;">$1</code>')
+    // Unordered lists
+    .replace(/^\s*[-•] (.*$)/gim, '<li>$1</li>')
+    // Ordered lists
+    .replace(/^\s*\d+\.\s+(.*$)/gim, '<li>$1</li>')
+    // Checkboxes
+    .replace(/^\s*- \[ \] (.*$)/gim, '<li>☐ $1</li>')
+    .replace(/^\s*- \[x\] (.*$)/gim, '<li>☑ $1</li>')
+    // Tables (simple markdown tables)
+    .replace(/\|([^|]*)\|([^|]*)\|/g, (match, c1, c2) => {
+      return `<td>${c1.trim()}</td><td>${c2.trim()}</td>`;
+    })
+    // Line breaks
+    .replace(/\n/g, '<br>');
+
+  // Wrap consecutive <li> elements in <ul>
+  html = html.replace(/(<li>.*?<\/li>)+/g, (match) => `<ul>${match}</ul>`);
+
+  return html;
+}
+
+/** Strip markdown to plain text (for previews and clean generation) */
+export function stripMarkdown(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/^### /gim, '')
+    .replace(/^## /gim, '')
+    .replace(/^# /gim, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*[-•] /gim, '')
+    .replace(/^\s*\d+\.\s+/gim, '')
+    .replace(/^\s*- \[([ x])\] /gim, '')
+    .replace(/\|/g, '')
+    .trim();
+}

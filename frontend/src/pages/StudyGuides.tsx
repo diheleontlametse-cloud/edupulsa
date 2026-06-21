@@ -3,34 +3,34 @@ import { useStudyGuides, useClasses } from '../hooks/useData';
 import { authFetch } from '../lib/api';
 import Modal from '../components/Modal';
 import { Plus, Pencil, Trash2, BookOpen, Wand2, Download } from 'lucide-react';
-import { downloadAsWord } from '../lib/download';
+import { downloadAsWord, markdownToHtml } from '../lib/download';
 
 const studyGuideTemplates = {
   'exam_review': {
     title: 'CAPS Exam Review Guide',
-    content: `## CAPS Exam Review: {{topic}}
+    content: `CAPS Exam Review: {{topic}}
 
-### Key Concepts (CAPS Aligned)
+Key Concepts (CAPS Aligned)
 1. 
 2. 
 3. 
 
-### Important Definitions & Terminology
-- **Definition 1**: 
-- **Definition 2**: 
+Important Definitions & Terminology
+- Definition 1: 
+- Definition 2: 
 
-### Practice Questions (Exam Style)
+Practice Questions (Exam Style)
 1. 
 2. 
 3. 
 
-### Study Tips for South African Learners
+Study Tips for South African Learners
 - Review DBE (Department of Basic Education) workbooks
 - Practice past NSC/CAPS exam papers (2010–2024)
 - Study for 45 minutes, then take a 15-minute break
 - Use Siyavula or Mindset Learn for extra practice
 
-### Resources
+Resources
 - DBE Workbook Chapter: 
 - Siyavula / Mindset Learn: 
 - Past Exam Paper: 
@@ -38,102 +38,102 @@ const studyGuideTemplates = {
   },
   'chapter_summary': {
     title: 'CAPS Chapter Summary',
-    content: `## CAPS Chapter Summary: {{topic}}
+    content: `CAPS Chapter Summary: {{topic}}
 
-### Main Ideas (Aligned to CAPS Document)
-- 
-- 
+Main Ideas (Aligned to CAPS Document)
+
 - 
 
-### Vocabulary (English + Multilingual)
-| Term | Definition | isiZulu / isiXhosa / Afrikaans |
-|------|------------|-------------------------------|
-| | | |
-| | | |
 
-### Questions to Consider
+Vocabulary (English + Multilingual)
+
+
+
+
+
+Questions to Consider
 1. 
 2. 
 
-### Connections to Prior Learning
+Connections to Prior Learning
 How does this connect to previous grades (CAPS progression)?
 
-### Homework Checklist
-- [ ] Read the DBE-approved textbook chapter
-- [ ] Complete CAPS-aligned exercises
-- [ ] Review vocabulary in home language
-- [ ] Attempt one past exam question
+Homework Checklist
+Read the DBE-approved textbook chapter
+Complete CAPS-aligned exercises
+Review vocabulary in home language
+Attempt one past exam question
 `
   },
   'revision_notes': {
     title: 'CAPS Revision Notes',
-    content: `## CAPS Revision Notes: {{topic}}
+    content: `CAPS Revision Notes: {{topic}}
 
-### Quick Facts (DBE Aligned)
-- 
-- 
-- 
+Quick Facts (DBE Aligned)
 
-### Formulas / Rules to Remember
 - 
 
-### Common Mistakes (CAPS Examiner Reports)
+
+Formulas / Rules to Remember
+
+
+Common Mistakes (CAPS Examiner Reports)
 1. 
 2. 
 
-### Self-Test (CASS / SBA Style)
+Self-Test (CASS / SBA Style)
 1. Question: 
    Answer: 
 
 2. Question: 
    Answer: 
 
-### Next Steps
-- [ ] Create flashcards
-- [ ] Teach a friend (peer learning)
-- [ ] Complete CASS task
-- [ ] Review DBE exam guidelines
+Next Steps
+Create flashcards
+Teach a friend (peer learning)
+Complete CASS task
+Review DBE exam guidelines
 `
   },
   'lesson_plan': {
     title: 'CAPS Lesson Plan',
-    content: `## CAPS Lesson Plan: {{topic}}
+    content: `CAPS Lesson Plan: {{topic}}
 
-### Lesson Overview
-- **Grade**: 
-- **Subject**: 
-- **Duration**: 45 minutes (1 CAPS period)
-- **Topic**: {{topic}}
+Lesson Overview
+- Grade: 
+- Subject: 
+- Duration: 45 minutes (1 CAPS period)
+- Topic: {{topic}}
 
-### Learning Outcomes (CAPS)
+Learning Outcomes (CAPS)
 By the end of this lesson, learners should be able to:
 1. 
 2. 
 3. 
 
-### Assessment Criteria (CASS / SBA)
+Assessment Criteria (CASS / SBA)
 - Knowledge & Understanding: 
 - Application: 
 - Analysis & Evaluation: 
 
-### Teaching Activities
-| Time | Activity | Method |
-|------|----------|--------|
-| 10 min | Introduction / Hook | Discussion |
-| 15 min | Direct Instruction | Explanation |
-| 15 min | Guided Practice | Group Work |
-| 5 min | Exit Ticket / Plenary | Individual |
+Teaching Activities
+ Time  Activity  Method 
+------------------------
+ 10 min  Introduction / Hook  Discussion 
+ 15 min  Direct Instruction  Explanation 
+ 15 min  Guided Practice  Group Work 
+ 5 min  Exit Ticket / Plenary  Individual 
 
-### Resources Needed
+Resources Needed
 - DBE Workbook
 - Chalkboard / Whiteboard
 - Handouts
 - Mindset Learn video (optional)
 
-### Homework / Extension
-- 
+Homework / Extension
 
-### Multilingual Support
+
+Multilingual Support
 - Key terms in isiZulu: 
 - Key terms in Afrikaans: 
 `
@@ -214,7 +214,7 @@ export default function StudyGuides() {
       <p><strong>Subject:</strong> ${guide.subject}</p>
       ${guide.class_name ? `<p><strong>Class:</strong> ${guide.class_name}</p>` : ''}
       <hr>
-      ${guide.content.replace(/\n/g, '<br>').replace(/## /g, '<h2>').replace(/### /g, '<h3>').replace(/\*\*/g, '<strong>').replace(/\*\*/g, '</strong>')}
+      ${markdownToHtml(guide.content)}
     `;
     downloadAsWord(
       `${guide.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_study_guide.doc`,

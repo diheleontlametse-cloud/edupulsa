@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Modal from '../components/Modal';
 import { Filter, BookOpen, Clock, FileText, Wand2, Sparkles, Loader2, Download } from 'lucide-react';
 import { SA_SUBJECTS, GRADES } from '../lib/const';
-import { downloadAsWord } from '../lib/download';
+import { downloadAsWord, markdownToHtml } from '../lib/download';
 
 interface LessonPlan {
   id: number;
@@ -97,22 +97,25 @@ function generateLessonPlan(grade: string, subject: string, topic: string, durat
   const materials = materialsMap[subject] || 'DBE Workbook, whiteboard, projector, handouts';
 
   // Introduction template
-  const introduction = `**Hook (5 min):** Present a relatable scenario or question that connects ${topic} to learners' daily lives in South Africa.\n\n**Prior Knowledge (5 min):** Briefly recap what learners already know that connects to ${topic}. Use a think-pair-share activity.\n\n**Learning Intentions (2 min):** Share what learners will be able to do by the end of the lesson. Write the outcomes on the board.`;
+  const introduction = `Hook (5 min): Present a relatable scenario or question that connects ${topic} to learners' daily lives in South Africa.\n\nPrior Knowledge (5 min): Briefly recap what learners already know that connects to ${topic}. Use a think-pair-share activity.\n\nLearning Intentions (2 min): Share what learners will be able to do by the end of the lesson. Write the outcomes on the board.`;
 
   // Body template based on duration
   const bodyMinutes = duration - 15; // minus intro and conclusion
   const activityTime = Math.floor(bodyMinutes / 3);
 
-  const body = `**Direct Instruction (${activityTime} min):**\n- Present key concepts of ${topic} using clear explanations and visual aids appropriate for ${phase} learners.\n- Model worked examples on the board.\n- Check for understanding with strategic questions.\n\n**Guided Practice (${activityTime} min):**\n- Learners work in pairs or small groups on structured problems related to ${topic}.\n- Teacher circulates, provides feedback, and addresses misconceptions.\n- Use DBE workbook exercises or customised worksheets.\n\n**Independent Practice (${activityTime} min):**\n- Learners complete individual tasks to consolidate understanding of ${topic}.\n- Differentiated tasks: Extension for fast finishers, support for those who need it.\n- Peer marking where appropriate.`;
+  const body = `
+Direct Instruction (${activityTime} min):\n- Present key concepts of ${topic} using clear explanations and visual aids appropriate for ${phase} learners.\n- Model worked examples on the board.\n- Check for understanding with strategic questions.\n\n
+Guided Practice (${activityTime} min):\n- Learners work in pairs or small groups on structured problems related to ${topic}.\n- Teacher circulates, provides feedback, and addresses misconceptions.\n- Use DBE workbook exercises or customised worksheets.\n\n
+Independent Practice (${activityTime} min):\n- Learners complete individual tasks to consolidate understanding of ${topic}.\n- Differentiated tasks: Extension for fast finishers, support for those who need it.\n- Peer marking where appropriate.`;
 
   // Conclusion
-  const conclusion = `**Plenary (5 min):**\n- Summarise key learning points about ${topic}.\n- Ask 3 learners to share one thing they learned.\n- Connect to next lesson: preview what comes next.\n\n**Exit Ticket (5 min):**\nQuick assessment: One question that checks understanding of the core concept from ${topic}.`;
+  const conclusion = `Plenary (5 min):\n- Summarise key learning points about ${topic}.\n- Ask 3 learners to share one thing they learned.\n- Connect to next lesson: preview what comes next.\n\nExit Ticket (5 min):\nQuick assessment: One question that checks understanding of the core concept from ${topic}.`;
 
   // Assessment
-  const assessment = `**Formative Assessment (during lesson):**\n- Observation of participation during guided practice.\n- Questioning throughout the lesson.\n- Peer marking of practice exercises.\n\n**Summative Assessment (exit ticket):**\n- One question that assesses the core learning outcome for ${topic}.\n- Self-assessment: learners rate their confidence (1-5) on the learning intention.`;
+  const assessment = `Formative Assessment (during lesson):\n- Observation of participation during guided practice.\n- Questioning throughout the lesson.\n- Peer marking of practice exercises.\n\nSummative Assessment (exit ticket):\n- One question that assesses the core learning outcome for ${topic}.\n- Self-assessment: learners rate their confidence (1-5) on the learning intention.`;
 
   // Homework
-  const homework = `**DBE Workbook:** Complete the exercises related to ${topic}.\n\n**Extension (optional):** Find a real-world example of ${topic} in your community or in a South African context. Write 3 sentences explaining the connection.\n\n**Preparation for next lesson:** Read ahead about the next topic and write one question you have.`;
+  const homework = `DBE Workbook: Complete the exercises related to ${topic}.\n\nExtension (optional): Find a real-world example of ${topic} in your community or in a South African context. Write 3 sentences explaining the connection.\n\nPreparation for next lesson: Read ahead about the next topic and write one question you have.`;
 
   return {
     title: `${topic} - Grade ${grade} ${subject}`,
@@ -228,25 +231,25 @@ export default function LessonPlans() {
       <p><strong>Status:</strong> ${plan.status}</p>
 
       <h2>Learning Outcomes</h2>
-      <p>${plan.learningOutcomes.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.learningOutcomes)}
 
       <h2>Materials Needed</h2>
-      <p>${plan.materials.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.materials)}
 
       <h2>Introduction</h2>
-      <p>${plan.introduction.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.introduction)}
 
       <h2>Body / Main Activity</h2>
-      <p>${plan.body.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.body)}
 
       <h2>Conclusion</h2>
-      <p>${plan.conclusion.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.conclusion)}
 
       <h2>Assessment</h2>
-      <p>${plan.assessment.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.assessment)}
 
       <h2>Homework</h2>
-      <p>${plan.homework.replace(/\n/g, '<br>')}</p>
+      ${markdownToHtml(plan.homework)}
     `;
     downloadAsWord(
       `${plan.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_lesson_plan.doc`,
