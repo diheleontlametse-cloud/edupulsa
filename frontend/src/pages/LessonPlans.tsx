@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Modal from '../components/Modal';
-import { Filter, BookOpen, Clock, FileText, Wand2, Sparkles, Loader2 } from 'lucide-react';
+import { Filter, BookOpen, Clock, FileText, Wand2, Sparkles, Loader2, Download } from 'lucide-react';
 import { SA_SUBJECTS, GRADES } from '../lib/const';
 
 interface LessonPlan {
@@ -21,63 +21,6 @@ interface LessonPlan {
   assessment: string;
   homework: string;
 }
-
-const mockPlans: LessonPlan[] = [
-  {
-    id: 1,
-    title: 'Introduction to Quadratic Equations',
-    grade: '10',
-    subject: 'Mathematics',
-    topic: 'Algebra',
-    duration: 60,
-    term: 2,
-    week: 4,
-    status: 'Published',
-    learningOutcomes: 'Understand the form ax² + bx + c = 0. Identify coefficients and apply the quadratic formula.',
-    materials: 'Whiteboard, DBE worksheets, calculators, Siyavula app access',
-    introduction: 'Recap linear equations. Present a real-world problem: "A ball is thrown upward. Its height h after t seconds is h = -5t² + 20t + 10. How long until it hits the ground?" This introduces the need for quadratic equations.',
-    body: '1. Define quadratic equation: ax² + bx + c = 0.\n2. Identify a, b, c in examples.\n3. Teach factorising (when a=1).\n4. Introduce the quadratic formula: x = (-b ± √(b²-4ac)) / 2a.\n5. Work through 3 examples on the board.\n6. Learners practice in pairs with DBE Workbook Exercise 5.1.\n7. Discuss the discriminant (b²-4ac) and what it tells us about roots.',
-    conclusion: 'Summarise the 3 methods: factorising, quadratic formula, completing the square. Highlight common mistakes: forgetting ±, sign errors with -b. Quick exit ticket: solve x² - 5x + 6 = 0.',
-    assessment: 'Exit ticket: 3 problems (factorise, use formula, interpret discriminant). Peer marking.',
-    homework: 'DBE Workbook Exercise 5.2, questions 1-8. Research: Find a real-world example of a parabola in your community.',
-  },
-  {
-    id: 2,
-    title: 'Cell Structure and Function',
-    grade: '11',
-    subject: 'Life Sciences',
-    topic: 'Cells',
-    duration: 90,
-    term: 1,
-    week: 2,
-    status: 'Draft',
-    learningOutcomes: 'Identify organelles and their functions. Compare plant and animal cells.',
-    materials: 'Microscopes, prepared slides, cell diagrams, posters, Mindset Learn video',
-    introduction: 'Discuss cell theory: all living things are made of cells. Show the Mindset Learn video on cell structure. Ask: "What do you think is inside a cell?" Brainstorm.',
-    body: '1. Distribute cell diagrams.\n2. Identify organelles: nucleus, mitochondria, ribosomes, ER, Golgi, lysosomes, vacuole, cell wall, chloroplasts.\n3. Function matching activity: learners match organelle to function.\n4. Practical: View plant and animal cells under microscopes.\n5. Record observations in lab books.\n6. Class discussion: Compare plant vs animal cells.',
-    conclusion: 'Create a Venn diagram on the board: Plant cells only, Both, Animal cells only. Discuss why each cell type has specific structures.',
-    assessment: 'Labelled diagram quiz. Microscope drawing rubric.',
-    homework: 'Research one organelle in depth. Prepare a 1-minute presentation for next class.',
-  },
-  {
-    id: 3,
-    title: 'Map Skills: Scale and Distance',
-    grade: '8',
-    subject: 'Geography',
-    topic: 'Map Work',
-    duration: 45,
-    term: 3,
-    week: 1,
-    status: 'Published',
-    learningOutcomes: 'Calculate real distance using map scale. Convert between different scale types.',
-    materials: 'Topographic maps of local area, rulers, calculators, string for curved distances',
-    introduction: 'Show a map of your local town. Ask: "How far is it from the school to the nearest shop?" Discuss that maps show things smaller than real life.',
-    body: '1. Review scale types: statement (1cm to 1km), representative fraction (1:50,000), linear.\n2. Demonstrate measuring straight-line distance with ruler.\n3. Demonstrate measuring curved distance with string.\n4. Conversion practice: cm → km using scale.\n5. Worksheet: 5 local map problems.\n6. Group challenge: Plan the shortest route between 3 landmarks.',
-    conclusion: 'Discuss real-world applications: hiking, road trips, emergency services. Link to GPS and Google Maps.',
-    assessment: 'Worksheet with 5 scale problems. Group route challenge presentation.',
-    homework: 'Bring a map from home (brochure, GPS screenshot, or hand-drawn). Measure one distance and write the scale.',
-  },
-];
 
 // AI Lesson Plan Generator Templates
 function generateLessonPlan(grade: string, subject: string, topic: string, duration: number): Omit<LessonPlan, 'id' | 'status'> {
@@ -189,7 +132,7 @@ function generateLessonPlan(grade: string, subject: string, topic: string, durat
 }
 
 export default function LessonPlans() {
-  const [plans, setPlans] = useState<LessonPlan[]>(mockPlans);
+  const [plans, setPlans] = useState<LessonPlan[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
@@ -274,6 +217,60 @@ export default function LessonPlans() {
       setIsAiModalOpen(false);
       setIsModalOpen(true);
     }, 1500);
+  };
+
+  const handleDownload = (plan: LessonPlan) => {
+    const content = `EDUPLAN SA - LESSON PLAN
+========================
+
+Title: ${plan.title}
+Grade: ${plan.grade}
+Subject: ${plan.subject}
+Topic: ${plan.topic}
+Duration: ${plan.duration} minutes
+Term: ${plan.term}, Week: ${plan.week}
+Status: ${plan.status}
+
+LEARNING OUTCOMES
+-----------------
+${plan.learningOutcomes}
+
+MATERIALS NEEDED
+----------------
+${plan.materials}
+
+INTRODUCTION
+------------
+${plan.introduction}
+
+BODY / MAIN ACTIVITY
+--------------------
+${plan.body}
+
+CONCLUSION
+----------
+${plan.conclusion}
+
+ASSESSMENT
+----------
+${plan.assessment}
+
+HOMEWORK
+--------
+${plan.homework}
+
+---
+Generated by EduPlan SA - South African Education Platform
+`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${plan.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_lesson_plan.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const filtered = plans.filter((p) => {
@@ -379,9 +376,19 @@ export default function LessonPlans() {
               <span className="text-gray-300">|</span>
               <span>{plan.subject}</span>
             </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
-              <FileText className="w-3 h-3" />
-              Term {plan.term}, Week {plan.week}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <FileText className="w-3 h-3" />
+                Term {plan.term}, Week {plan.week}
+              </div>
+              <button
+                onClick={() => handleDownload(plan)}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-teal-700 bg-teal-50 rounded hover:bg-teal-100 transition-colors"
+                title="Download lesson plan"
+              >
+                <Download className="w-3 h-3" />
+                Download
+              </button>
             </div>
           </div>
         ))}

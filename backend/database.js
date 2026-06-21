@@ -19,6 +19,7 @@ function initTables() {
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       role TEXT DEFAULT 'teacher',
+      profile_picture TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
