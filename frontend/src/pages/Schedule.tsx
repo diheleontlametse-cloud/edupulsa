@@ -19,17 +19,8 @@ const TIME_SLOTS = [
   '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
 ];
 
-const mockSchedule: ScheduleItem[] = [
-  { id: 1, subject: 'Mathematics', grade: '10', day: 1, startTime: '08:00', endTime: '09:00', room: 'Room 101', notes: 'Algebra revision' },
-  { id: 2, subject: 'Physical Sciences', grade: '11', day: 1, startTime: '09:30', endTime: '10:30', room: 'Lab A', notes: 'Practical experiment' },
-  { id: 3, subject: 'English Home Language', grade: '9', day: 2, startTime: '10:00', endTime: '11:00', room: 'Room 203', notes: 'Essay writing' },
-  { id: 4, subject: 'Life Orientation', grade: '12', day: 3, startTime: '11:30', endTime: '12:30', room: 'Hall B', notes: 'Career guidance' },
-  { id: 5, subject: 'Geography', grade: '8', day: 4, startTime: '08:30', endTime: '09:30', room: 'Room 105', notes: 'Map work' },
-  { id: 6, subject: 'History', grade: '10', day: 5, startTime: '13:00', endTime: '14:00', room: 'Room 102', notes: 'WWII module' },
-];
-
 export default function Schedule() {
-  const [items, setItems] = useState<ScheduleItem[]>(mockSchedule);
+  const [items, setItems] = useState<ScheduleItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({
     subject: '',
