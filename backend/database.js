@@ -96,6 +96,12 @@ function initTables() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
+    db.run(`ALTER TABLE users ADD COLUMN profile_picture TEXT`, function(err) {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.log('Note: profile_picture column may already exist');
+      }
+    });
+
     console.log('Database tables initialized.');
   });
 }
