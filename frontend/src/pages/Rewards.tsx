@@ -13,25 +13,6 @@ interface Reward {
   date: string;
 }
 
-const mockRewards: Reward[] = [
-  { id: 1, student: 'Thabo Mokoena', category: 'academic', points: 20, badge: 'trophy', description: 'Top marks in Mathematics test', date: '2026-06-12' },
-  { id: 2, student: 'Lerato Dlamini', category: 'behavior', points: 15, badge: 'heart', description: 'Helped a new student settle in', date: '2026-06-11' },
-  { id: 3, student: 'Sipho Nkosi', category: 'participation', points: 10, badge: 'rocket', description: 'Active participation in class debate', date: '2026-06-10' },
-  { id: 4, student: 'Amahle Khumalo', category: 'attendance', points: 25, badge: 'shield', description: 'Perfect attendance for the term', date: '2026-06-09' },
-  { id: 5, student: 'Jabulani Mthembu', category: 'improvement', points: 18, badge: 'star', description: 'Most improved in English reading', date: '2026-06-08' },
-];
-
-const STUDENTS = [
-  'Thabo Mokoena',
-  'Lerato Dlamini',
-  'Sipho Nkosi',
-  'Amahle Khumalo',
-  'Jabulani Mthembu',
-  'Nomsa Sithole',
-  'Bongani Zulu',
-  'Precia Moloi',
-];
-
 const BADGE_OPTIONS = [
   { key: 'star', label: 'Star', emoji: '⭐' },
   { key: 'trophy', label: 'Trophy', emoji: '🏆' },
@@ -44,7 +25,7 @@ const BADGE_OPTIONS = [
 ];
 
 export default function Rewards() {
-  const [rewards, setRewards] = useState<Reward[]>(mockRewards);
+  const [rewards, setRewards] = useState<Reward[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({
     student: '',
@@ -198,18 +179,15 @@ export default function Rewards() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Give Reward">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Student</label>
-            <select
+            <label className="block text-sm font-medium text-gray-700 mb-1">Student Name</label>
+            <input
+              type="text"
               required
               value={form.student}
               onChange={(e) => setForm({ ...form, student: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            >
-              <option value="">Select a student</option>
-              {STUDENTS.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+              placeholder="e.g., Thabo Mokoena"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
