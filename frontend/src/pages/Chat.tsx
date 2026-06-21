@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, Hash, Users, Send, Bell, BookOpen, GraduationCap, Globe, RefreshCw } from 'lucide-react';
 import { GRADES, SA_SUBJECTS } from '../lib/const';
 import { authFetch } from '../lib/api';
@@ -41,15 +41,19 @@ const generalChannels: Channel[] = [
 ];
 
 export default function Chat() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [activeChannel, setActiveChannel] = useState<Channel>(gradeChannels[9]);
   const [messageInput, setMessageInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchMessages = async () => {
+  // Fetch initial messages via HTTP
+  const fetchMessages = useCallback(async () => {
     if (!activeChannel) return;
     setLoading(true);
     try {
@@ -62,14 +66,74 @@ export default function Chat() {
       console.error('Failed to fetch messages:', err);
     }
     setLoading(false);
-  };
+  }, [activeChannel]);
 
+  // Connect to SSE stream for real-time messages
+  const connectSSE = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    const url = `/api/messages/stream?channel=${encodeURIComponent(activeChannel.id)}`;
+    const es = new EventSource(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    } as EventSourceInit);
+
+    eventSourceRef.current = es;
+
+    es.onopen = () => {
+      setIsConnected(true);
+      console.log('SSE connected');
+    };
+
+    es.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        if (parsed.type === 'message') {
+          const msg = parsed.data as Message;
+          setMessages((prev) => {
+            // Avoid duplicates
+            if (prev.some((m) => m.id === msg.id)) return prev;
+            return [...prev, msg];
+          });
+        } else if (parsed.type === 'connected') {
+          console.log('SSE channel connected:', parsed.channel);
+        }
+      } catch (err) {
+        console.error('SSE parse error:', err);
+      }
+    };
+
+    es.onerror = () => {
+      setIsConnected(false);
+      es.close();
+      // Auto-reconnect after 3 seconds
+      reconnectTimeoutRef.current = setTimeout(() => {
+        connectSSE();
+      }, 3000);
+    };
+  }, [activeChannel, token]);
+
+  // Initial fetch + SSE connection when channel changes
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
-  }, [activeChannel.id]);
+    connectSSE();
 
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [fetchMessages, connectSSE]);
+
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -77,7 +141,22 @@ export default function Chat() {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!messageInput.trim() || !user) return;
+
+    const content = messageInput.trim();
+    setMessageInput('');
     setSending(true);
+
+    // Optimistic update - show message immediately
+    const optimisticMsg: Message = {
+      id: Date.now() * -1, // negative ID to distinguish from server
+      sender_id: user.id,
+      sender_name: user.name,
+      channel: activeChannel.id,
+      content,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMsg]);
+
     try {
       const res = await authFetch('/api/messages', {
         method: 'POST',
@@ -86,16 +165,20 @@ export default function Chat() {
           sender_id: user.id,
           sender_name: user.name,
           channel: activeChannel.id,
-          content: messageInput.trim(),
+          content,
         }),
       });
       const data = await res.json();
       if (data.id) {
-        setMessages((prev) => [...prev, data]);
-        setMessageInput('');
+        // Replace optimistic message with real one
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMsg.id ? data : m))
+        );
       }
     } catch (err) {
       console.error('Failed to send message:', err);
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
     }
     setSending(false);
   };
@@ -167,7 +250,9 @@ export default function Chat() {
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               </button>
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-500">Live</span>
+              <span className={`text-xs font-medium ${isConnected ? 'text-green-500' : 'text-gray-400'}`}>
+                {isConnected ? '● Live' : '● Reconnecting...'}
+              </span>
               <Bell className="w-4 h-4 text-gray-400" />
             </div>
           </div>
