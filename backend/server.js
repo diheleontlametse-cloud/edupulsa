@@ -45,6 +45,23 @@ if (fs.existsSync(landingPath)) {
   }
 }
 
+app.get('/debug', (req, res) => {
+  const fs = require('fs');
+  const landingDir = path.join(__dirname, '../landing');
+  const distDir = path.join(__dirname, '../frontend/dist');
+  const distIndex = path.join(distDir, 'index.html');
+  const landingIndex = path.join(landingDir, 'index.html');
+  
+  res.json({
+    distIndexExists: fs.existsSync(distIndex),
+    distIndexFirst200: fs.existsSync(distIndex) ? fs.readFileSync(distIndex, 'utf8').substring(0, 200) : 'NOT FOUND',
+    landingIndexExists: fs.existsSync(landingIndex),
+    landingIndexFirst200: fs.existsSync(landingIndex) ? fs.readFileSync(landingIndex, 'utf8').substring(0, 200) : 'NOT FOUND',
+    distFiles: fs.existsSync(distDir) ? fs.readdirSync(distDir) : [],
+    distAssetsFiles: fs.existsSync(path.join(distDir, 'assets')) ? fs.readdirSync(path.join(distDir, 'assets')) : [],
+  });
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Landing page at root
