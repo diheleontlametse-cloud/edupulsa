@@ -7,24 +7,6 @@ const { authMiddleware } = require('./auth');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// === STARTUP: Force sync dist files with git HEAD ===
-const { execSync } = require('child_process');
-const rootDir = path.join(__dirname, '..');
-try {
-  execSync('git checkout HEAD -- frontend/dist/', { cwd: rootDir, stdio: 'pipe' });
-  console.log('Synced frontend/dist with git HEAD');
-} catch (e) {
-  console.log('Git sync skipped (not a git repo or no git available)');
-}
-
-// Clean up old landing/assets from previous build
-const landingAssetsDir = path.join(rootDir, 'landing', 'assets');
-if (fs.existsSync(landingAssetsDir)) {
-  fs.readdirSync(landingAssetsDir).forEach(f => fs.unlinkSync(path.join(landingAssetsDir, f)));
-  fs.rmdirSync(landingAssetsDir);
-  console.log('Removed old landing/assets');
-}
-
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
