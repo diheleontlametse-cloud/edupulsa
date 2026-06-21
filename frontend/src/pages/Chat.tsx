@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, Hash, Users, Send, Bell, BookOpen, GraduationCap, Globe, RefreshCw } from 'lucide-react';
+import { MessageSquare, Hash, Users, Send, Bell, BookOpen, GraduationCap, Globe, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { GRADES, SA_SUBJECTS } from '../lib/const';
 import { authFetch } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -47,48 +47,59 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isLive, setIsLive] = useState(false); // SSE connected
+  const [lastFetchTime, setLastFetchTime] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const latestMessageIdRef = useRef(0);
 
-  // Fetch initial messages via HTTP
+  // Fetch messages via HTTP
   const fetchMessages = useCallback(async () => {
     if (!activeChannel) return;
-    setLoading(true);
     try {
       const res = await authFetch(`/api/messages?channel=${encodeURIComponent(activeChannel.id)}`);
       const data = await res.json();
       if (Array.isArray(data)) {
+        const prevCount = messages.length;
+        const prevLastId = latestMessageIdRef.current;
         setMessages(data);
+        // Track latest message ID for new message detection
+        if (data.length > 0) {
+          const maxId = Math.max(...data.map((m: Message) => m.id));
+          latestMessageIdRef.current = maxId;
+        }
+        // If new messages arrived and user wasn't at bottom, show notification
+        if (data.length > prevCount && prevLastId > 0 && data.some((m: Message) => m.id > prevLastId)) {
+          // Scroll to bottom when new messages arrive
+          setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+        setLastFetchTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
       }
     } catch (err) {
       console.error('Failed to fetch messages:', err);
     }
-    setLoading(false);
-  }, [activeChannel]);
+  }, [activeChannel, messages.length]);
 
-  // Connect to SSE stream for real-time messages
-  // Token passed as URL query param since EventSource doesn't support custom headers
+  // Connect to SSE stream for real-time messages (bonus, not required)
   const connectSSE = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
     }
-
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
-
     if (!token) return;
 
     const url = `/api/messages/stream?channel=${encodeURIComponent(activeChannel.id)}&token=${encodeURIComponent(token)}`;
     const es = new EventSource(url);
-
     eventSourceRef.current = es;
 
     es.onopen = () => {
-      setIsConnected(true);
-      console.log('SSE connected');
+      setIsLive(true);
     };
 
     es.onmessage = (event) => {
@@ -97,33 +108,40 @@ export default function Chat() {
         if (parsed.type === 'message') {
           const msg = parsed.data as Message;
           setMessages((prev) => {
-            // Avoid duplicates
             if (prev.some((m) => m.id === msg.id)) return prev;
             return [...prev, msg];
           });
-        } else if (parsed.type === 'connected') {
-          console.log('SSE channel connected:', parsed.channel);
+          latestMessageIdRef.current = Math.max(latestMessageIdRef.current, msg.id);
         }
       } catch (err) {
-        console.error('SSE parse error:', err);
+        // ignore parse errors
       }
     };
 
     es.onerror = () => {
-      setIsConnected(false);
+      setIsLive(false);
       es.close();
-      // Auto-reconnect after 3 seconds
       reconnectTimeoutRef.current = setTimeout(() => {
         connectSSE();
-      }, 3000);
+      }, 5000);
     };
   }, [activeChannel, token]);
 
-  // Initial fetch + SSE connection when channel changes
+  // Polling every 2 seconds (primary real-time mechanism)
   useEffect(() => {
-    fetchMessages();
-    connectSSE();
+    fetchMessages(); // initial fetch
+    pollIntervalRef.current = setInterval(fetchMessages, 2000);
 
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, [activeChannel]);
+
+  // SSE connection (bonus enhancement)
+  useEffect(() => {
+    connectSSE();
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
@@ -132,12 +150,12 @@ export default function Chat() {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [fetchMessages, connectSSE]);
+  }, [connectSSE]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages.length]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,8 +166,9 @@ export default function Chat() {
     setSending(true);
 
     // Optimistic update - show message immediately
+    const optimisticId = Date.now() * -1;
     const optimisticMsg: Message = {
-      id: Date.now() * -1, // negative ID to distinguish from server
+      id: optimisticId,
       sender_id: user.id,
       sender_name: user.name,
       channel: activeChannel.id,
@@ -157,6 +176,10 @@ export default function Chat() {
       created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimisticMsg]);
+    // Scroll immediately
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
 
     try {
       const res = await authFetch('/api/messages', {
@@ -173,13 +196,17 @@ export default function Chat() {
       if (data.id) {
         // Replace optimistic message with real one
         setMessages((prev) =>
-          prev.map((m) => (m.id === optimisticMsg.id ? data : m))
+          prev.map((m) => (m.id === optimisticId ? data : m))
         );
+        latestMessageIdRef.current = Math.max(latestMessageIdRef.current, data.id);
+      } else {
+        // Remove optimistic if server rejected
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       }
     } catch (err) {
       console.error('Failed to send message:', err);
       // Remove optimistic message on error
-      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
     }
     setSending(false);
   };
@@ -242,7 +269,8 @@ export default function Chat() {
               <h2 className="font-semibold text-teal-900">{activeChannel.name}</h2>
               <span className="text-xs text-gray-500">{messages.length} messages</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-400">Updated: {lastFetchTime}</span>
               <button
                 onClick={fetchMessages}
                 className="p-1.5 text-gray-400 hover:text-teal-700 transition-colors"
@@ -250,11 +278,10 @@ export default function Chat() {
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               </button>
-              <Users className="w-4 h-4 text-gray-400" />
-              <span className={`text-xs font-medium ${isConnected ? 'text-green-500' : 'text-gray-400'}`}>
-                {isConnected ? '● Live' : '● Reconnecting...'}
+              <span className={`flex items-center gap-1 text-xs font-medium ${isLive ? 'text-green-600' : 'text-amber-500'}`}>
+                {isLive ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+                {isLive ? 'Live' : 'Polling'}
               </span>
-              <Bell className="w-4 h-4 text-gray-400" />
             </div>
           </div>
 

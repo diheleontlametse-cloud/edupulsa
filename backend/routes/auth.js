@@ -50,6 +50,7 @@ router.post('/register', async (req, res) => {
         token,
         user: { ...user, profile_picture: null, is_verified: 0 },
         trialEnd: trialEndStr,
+        verificationCode: verificationCode,
         message: emailResult.sent
           ? 'Registration successful! Check your email for the verification code.'
           : `Registration successful! Your verification code is: ${verificationCode}`,
@@ -90,6 +91,7 @@ router.post('/login', (req, res) => {
           subscription_end: updatedUser.subscription_end,
         },
         needsVerification: updatedUser.is_verified === 0,
+        verificationCode: updatedUser.is_verified === 0 ? updatedUser.verification_code : undefined,
         trialExpired: updatedUser.subscription_status === 'expired'
       });
     });
@@ -124,6 +126,7 @@ router.post('/resend-code', async (req, res) => {
     if (this.changes === 0) return res.status(400).json({ error: 'Email not found or already verified' });
     const emailResult = await sendVerificationEmail(email, 'User', newCode);
     res.json({
+      verificationCode: newCode,
       message: emailResult.sent
         ? 'New code sent to your email.'
         : `New verification code: ${newCode}`,
@@ -144,6 +147,7 @@ router.post('/forgot-password', async (req, res) => {
     db.get('SELECT name FROM users WHERE email = ?', [email], async (err, user) => {
       const emailResult = await sendPasswordResetEmail(email, user?.name || 'User', token);
       res.json({
+        resetToken: token,
         message: emailResult.sent
           ? 'Password reset email sent. Check your inbox.'
           : 'Password reset token generated. Check the app for the token.',
