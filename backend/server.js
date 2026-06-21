@@ -45,6 +45,29 @@ if (fs.existsSync(landingPath)) {
   }
 }
 
+// Clean up old dist assets that are no longer referenced in index.html
+const distDir = path.join(__dirname, '../frontend/dist');
+const distAssetsDir = path.join(distDir, 'assets');
+const distIndexPath = path.join(distDir, 'index.html');
+if (fs.existsSync(distIndexPath) && fs.existsSync(distAssetsDir)) {
+  const indexContent = fs.readFileSync(distIndexPath, 'utf8');
+  const assetFiles = fs.readdirSync(distAssetsDir);
+  const keptFiles = [];
+  const removedFiles = [];
+  assetFiles.forEach(file => {
+    if (indexContent.includes(file)) {
+      keptFiles.push(file);
+    } else {
+      fs.unlinkSync(path.join(distAssetsDir, file));
+      removedFiles.push(file);
+    }
+  });
+  if (removedFiles.length > 0) {
+    console.log('Removed stale dist assets:', removedFiles.join(', '));
+  }
+  console.log('Kept dist assets:', keptFiles.join(', '));
+}
+
 app.get('/debug', (req, res) => {
   const fs = require('fs');
   const landingDir = path.join(__dirname, '../landing');
