@@ -24,6 +24,7 @@ router.get('/', (req, res) => {
 });
 
 // SSE stream for real-time messages in a channel
+// Token is passed as query param since EventSource doesn't support custom headers
 router.get('/stream', (req, res) => {
   const { channel } = req.query;
   if (!channel) {

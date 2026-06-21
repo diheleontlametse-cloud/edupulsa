@@ -13,6 +13,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
   const [pendingCode, setPendingCode] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +31,8 @@ export default function Login() {
         const data = await res.json();
         if (!res.ok) { setError(data.error); setLoading(false); return; }
         setPendingEmail(form.email);
-        setPendingCode(data.verificationCode || '');
+        setPendingCode(data.emailSent ? '' : (data.verificationCode || ''));
+        setEmailSent(!!data.emailSent);
         setMode('verify');
         setSuccess(data.message || 'Registration successful! Please verify your email.');
       }
@@ -45,6 +47,7 @@ export default function Login() {
         if (data.needsVerification) {
           setPendingEmail(form.email);
           setPendingCode(data.verificationCode || '');
+          setEmailSent(false); // login doesn't send email
           setMode('verify');
           setSuccess('Please verify your email before continuing.');
           setLoading(false);
@@ -86,7 +89,8 @@ export default function Login() {
         const data = await res.json();
         if (!res.ok) { setError(data.error); setLoading(false); return; }
         setPendingEmail(form.email);
-        setForm({ ...form, token: data.resetToken || '' });
+        setForm({ ...form, token: data.emailSent ? '' : (data.resetToken || '') });
+        setEmailSent(!!data.emailSent);
         setMode('reset');
         setSuccess(data.message || 'Reset token generated. Enter your new password below.');
       }
@@ -122,8 +126,9 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) { setError(data.error); }
       else {
-        setPendingCode(data.verificationCode || '');
-        setSuccess('New code sent!');
+        setPendingCode(data.emailSent ? '' : (data.verificationCode || ''));
+        setEmailSent(!!data.emailSent);
+        setSuccess(data.message || 'New code sent!');
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -144,7 +149,7 @@ export default function Login() {
     login: 'Sign In',
     register: 'Create Account',
     verify: 'Verify Code',
-    forgot: 'Send Reset Token',
+    forgot: 'Send Reset Link',
     reset: 'Set New Password',
   }[mode];
 
@@ -170,19 +175,35 @@ export default function Login() {
           <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">{success}</div>
         )}
 
-        {mode === 'verify' && pendingCode && (
-          <div className="mb-4 p-3 bg-amber-50 text-amber-800 rounded-lg text-sm">
-            <p className="font-medium">Your verification code:</p>
-            <p className="text-2xl font-bold tracking-widest mt-1">{pendingCode}</p>
-            <p className="text-xs mt-1 text-amber-600">(In a real app, this would be sent to your email.)</p>
+        {/* Email sent confirmation */}
+        {mode === 'verify' && emailSent && (
+          <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm">
+            <p className="font-medium">Check your email!</p>
+            <p className="text-xs mt-1">We sent a 6-digit code to <strong>{pendingEmail}</strong>. Enter it below.</p>
           </div>
         )}
 
-        {mode === 'reset' && form.token && (
+        {/* Fallback code display when email not sent */}
+        {mode === 'verify' && !emailSent && pendingCode && (
+          <div className="mb-4 p-3 bg-amber-50 text-amber-800 rounded-lg text-sm">
+            <p className="font-medium">Your verification code:</p>
+            <p className="text-2xl font-bold tracking-widest mt-1">{pendingCode}</p>
+            <p className="text-xs mt-1 text-amber-600">(Email service not configured. Use this code instead.)</p>
+          </div>
+        )}
+
+        {mode === 'reset' && emailSent && (
+          <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm">
+            <p className="font-medium">Check your email!</p>
+            <p className="text-xs mt-1">We sent a reset token to <strong>{pendingEmail}</strong>. Enter it below.</p>
+          </div>
+        )}
+
+        {mode === 'reset' && !emailSent && form.token && (
           <div className="mb-4 p-3 bg-amber-50 text-amber-800 rounded-lg text-sm">
             <p className="font-medium">Your reset token:</p>
             <p className="text-xs font-mono break-all mt-1">{form.token}</p>
-            <p className="text-xs mt-1 text-amber-600">(In a real app, this would be sent to your email.)</p>
+            <p className="text-xs mt-1 text-amber-600">(Email service not configured. Use this token instead.)</p>
           </div>
         )}
 

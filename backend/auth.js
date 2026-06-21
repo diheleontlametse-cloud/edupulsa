@@ -29,11 +29,19 @@ function verifyToken(token) {
 }
 
 function authMiddleware(req, res, next) {
+  // Check Authorization header first
+  let token = null;
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  }
+  // Fallback: check query param for SSE (EventSource can't send headers)
+  if (!token && req.query.token) {
+    token = req.query.token;
+  }
+  if (!token) {
     return res.status(401).json({ error: 'Unauthorized - No token provided' });
   }
-  const token = authHeader.split(' ')[1];
   const decoded = verifyToken(token);
   if (!decoded) {
     return res.status(401).json({ error: 'Unauthorized - Invalid token' });

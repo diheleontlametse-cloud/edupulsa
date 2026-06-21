@@ -69,6 +69,7 @@ export default function Chat() {
   }, [activeChannel]);
 
   // Connect to SSE stream for real-time messages
+  // Token passed as URL query param since EventSource doesn't support custom headers
   const connectSSE = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -78,10 +79,10 @@ export default function Chat() {
       clearTimeout(reconnectTimeoutRef.current);
     }
 
-    const url = `/api/messages/stream?channel=${encodeURIComponent(activeChannel.id)}`;
-    const es = new EventSource(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    } as EventSourceInit);
+    if (!token) return;
+
+    const url = `/api/messages/stream?channel=${encodeURIComponent(activeChannel.id)}&token=${encodeURIComponent(token)}`;
+    const es = new EventSource(url);
 
     eventSourceRef.current = es;
 
