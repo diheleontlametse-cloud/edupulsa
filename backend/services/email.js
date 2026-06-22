@@ -6,7 +6,7 @@ const SENDGRID_KEY = process.env.SENDGRID_API_KEY;
 const RESEND_KEY = process.env.RESEND_API_KEY;
 const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@edupulsa.com';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 const FROM_NAME = process.env.FROM_NAME || 'EduPlan SA';
 
 // ==================== PROVIDER DETECTION ====================
