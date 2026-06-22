@@ -13,7 +13,6 @@ import Reports from './pages/Reports';
 import Rewards from './pages/Rewards';
 import Schedule from './pages/Schedule';
 import LessonPlans from './pages/LessonPlans';
-import Chat from './pages/Chat';
 import Subscription from './pages/Subscription';
 import Assessments from './pages/Assessments';
 import AnnualTeachingPlan from './pages/AnnualTeachingPlan';
@@ -46,7 +45,6 @@ export default function App() {
         <Route path="/lesson-plans" element={<LessonPlans />} />
         <Route path="/assessments" element={<Assessments />} />
         <Route path="/atp" element={<AnnualTeachingPlan />} />
-        <Route path="/chat" element={<Chat />} />
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/login" element={<Navigate to="/" replace />} />
       </Routes>

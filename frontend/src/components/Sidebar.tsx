@@ -14,7 +14,6 @@ import {
   LogOut,
   Calendar,
   Award,
-  MessageCircle,
   Camera,
   Crown,
   ClipboardCheck,
@@ -34,7 +33,6 @@ const navItems = [
   { to: '/atp', icon: Calendar, label: 'ATP' },
   { to: '/schedule', icon: Calendar, label: 'Schedule' },
   { to: '/rewards', icon: Award, label: 'Rewards' },
-  { to: '/chat', icon: MessageCircle, label: 'Chat' },
   { to: '/subscription', icon: Crown, label: 'Subscription' },
 ];
 
