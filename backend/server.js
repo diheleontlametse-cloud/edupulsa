@@ -95,6 +95,25 @@ app.get('/debug', (req, res) => {
   });
 });
 
+// Test email endpoint - send a test email and return the result
+app.get('/test-email', async (req, res) => {
+  const { sendVerificationEmail, getProvider } = require('./services/email');
+  const email = req.query.email || 'test@example.com';
+  try {
+    const result = await sendVerificationEmail(email, 'Test User', '123456');
+    res.json({
+      provider: getProvider(),
+      result,
+      env: {
+        RESEND_API_KEY: process.env.RESEND_API_KEY ? 'SET' : 'NOT SET',
+        FROM_EMAIL: process.env.FROM_EMAIL || 'default',
+      }
+    });
+  } catch (err) {
+    res.json({ error: err.message, stack: err.stack });
+  }
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Landing page at root
