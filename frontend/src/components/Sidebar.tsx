@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Camera,
   Crown,
+  ClipboardCheck,
 } from 'lucide-react';
 
 const navItems = [
@@ -29,6 +30,8 @@ const navItems = [
   { to: '/attendance', icon: CalendarDays, label: 'Attendance' },
   { to: '/reports', icon: FileText, label: 'Reports' },
   { to: '/lesson-plans', icon: FileText, label: 'Lesson Plans' },
+  { to: '/assessments', icon: ClipboardCheck, label: 'Assessments' },
+  { to: '/atp', icon: Calendar, label: 'ATP' },
   { to: '/schedule', icon: Calendar, label: 'Schedule' },
   { to: '/rewards', icon: Award, label: 'Rewards' },
   { to: '/chat', icon: MessageCircle, label: 'Chat' },

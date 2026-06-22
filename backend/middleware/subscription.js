@@ -34,9 +34,11 @@ function checkCount(userId, resource, limits, req, res, next) {
   const tableMap = {
     classes: 'classes',
     students: 'students',
-    lessonPlans: 'study_guides', // Using study_guides for lesson plans count
+    lessonPlans: 'study_guides',
     studyGuides: 'study_guides',
     tasks: 'tasks',
+    assessments: 'programme_of_assessments',
+    atps: 'annual_teaching_plans',
   };
 
   const table = tableMap[resource];

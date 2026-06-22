@@ -52,9 +52,9 @@ function authMiddleware(req, res, next) {
 
 // Subscription tier limits
 const SUBSCRIPTION_LIMITS = {
-  free: { classes: 3, students: 30, lessonPlans: 10, studyGuides: 10, tasks: 20, aiGeneration: false, downloads: false },
-  basic: { classes: 999999, students: 100, lessonPlans: 50, studyGuides: 30, tasks: 999999, aiGeneration: true, downloads: true },
-  pro: { classes: 999999, students: 999999, lessonPlans: 999999, studyGuides: 999999, tasks: 999999, aiGeneration: true, downloads: true },
+  free: { classes: 3, students: 30, lessonPlans: 10, studyGuides: 10, tasks: 20, assessments: 5, atps: 5, aiGeneration: false, downloads: false },
+  basic: { classes: 999999, students: 100, lessonPlans: 50, studyGuides: 30, tasks: 999999, assessments: 50, atps: 50, aiGeneration: true, downloads: true },
+  pro: { classes: 999999, students: 999999, lessonPlans: 999999, studyGuides: 999999, tasks: 999999, assessments: 999999, atps: 999999, aiGeneration: true, downloads: true },
 };
 
 function getSubscriptionLimits(tier) {

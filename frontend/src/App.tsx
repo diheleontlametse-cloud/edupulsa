@@ -14,8 +14,9 @@ import Rewards from './pages/Rewards';
 import Schedule from './pages/Schedule';
 import LessonPlans from './pages/LessonPlans';
 import Chat from './pages/Chat';
-
 import Subscription from './pages/Subscription';
+import Assessments from './pages/Assessments';
+import AnnualTeachingPlan from './pages/AnnualTeachingPlan';
 
 export default function App() {
   const { token } = useAuth();
@@ -43,6 +44,8 @@ export default function App() {
         <Route path="/rewards" element={<Rewards />} />
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/lesson-plans" element={<LessonPlans />} />
+        <Route path="/assessments" element={<Assessments />} />
+        <Route path="/atp" element={<AnnualTeachingPlan />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/login" element={<Navigate to="/" replace />} />

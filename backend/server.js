@@ -24,6 +24,8 @@ app.use('/api/dashboard', authMiddleware, require('./routes/dashboard'));
 app.use('/api/reports', authMiddleware, require('./routes/reports'));
 app.use('/api/messages', authMiddleware, require('./routes/messages'));
 app.use('/api/subscription', authMiddleware, require('./routes/subscription'));
+app.use('/api/assessments', authMiddleware, require('./routes/assessments'));
+app.use('/api/atp', authMiddleware, require('./routes/atp'));
 
 // Restore landing page if corrupted on startup (from previous build)
 const fs = require('fs');
