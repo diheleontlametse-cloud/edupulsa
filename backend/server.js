@@ -75,6 +75,7 @@ app.get('/debug', (req, res) => {
   const distDir = path.join(__dirname, '../frontend/dist');
   const distIndex = path.join(distDir, 'index.html');
   const landingIndex = path.join(landingDir, 'index.html');
+  const emailService = require('./services/email');
   
   res.json({
     distIndexExists: fs.existsSync(distIndex),
@@ -83,6 +84,14 @@ app.get('/debug', (req, res) => {
     landingIndexFirst200: fs.existsSync(landingIndex) ? fs.readFileSync(landingIndex, 'utf8').substring(0, 200) : 'NOT FOUND',
     distFiles: fs.existsSync(distDir) ? fs.readdirSync(distDir) : [],
     distAssetsFiles: fs.existsSync(path.join(distDir, 'assets')) ? fs.readdirSync(path.join(distDir, 'assets')) : [],
+    emailProvider: emailService.getProvider(),
+    envVars: {
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      hasSendGridKey: !!process.env.SENDGRID_API_KEY,
+      hasGmailUser: !!process.env.GMAIL_USER,
+      hasGmailPass: !!process.env.GMAIL_APP_PASSWORD,
+      fromEmail: process.env.FROM_EMAIL || 'not set',
+    },
   });
 });
 
